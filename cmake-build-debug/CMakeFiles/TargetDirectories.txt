@@ -1,3 +1,0 @@
-C:/Users/소프트웨어/Desktop/리눅스프젝/implementation/cmake-build-debug/CMakeFiles/implementation.dir
-C:/Users/소프트웨어/Desktop/리눅스프젝/implementation/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/소프트웨어/Desktop/리눅스프젝/implementation/cmake-build-debug/CMakeFiles/rebuild_cache.dir
