@@ -3,8 +3,8 @@
 #include<unistd.h>
 #include<fcntl.h>
 #include<string.h>
-#include <conio.h>
 #include"cabinet_manager.h"
+#include"api.h"
 
 /**
  * 사물함 레코드 파일 디스크립터를 반환하는 함수
@@ -138,20 +138,26 @@ void show_cabinet(int index){
 
 void register_cabinet(int index){
     Cabinet cabinet;
-    char* file_name;
-    char password[8];
+    cabinet.index = index;
+    cabinet.status = CABINET_STATUS_USED;
     system("clear");
     printf("input the file name you wnat to archive: ");
     scanf("%s", cabinet.file_name);
+    printf("input the file discription: ");
+    scanf("%s", cabinet.file_description);
     printf("Enter your password(8word): ");
-
+    cabinet.incorrect_cnt = 0;
+    int i = 0;
     while (1) {
-        int i = 0;
-        if (i > 7) break;
-        password[i] = getch();
+        if (i > PASSWORD_SIZE - 1) break;
+        cabinet.password[i] = getch();
         printf("*");
         i++;
     }
+
+    set_cabinet(cabinet);
+    printf("registered success!");
+    sleep(1);
 
 }
 

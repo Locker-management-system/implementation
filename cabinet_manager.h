@@ -7,6 +7,7 @@
 #define CABINET_STATUS_LOCK 1
 #define CABINET_STATUS_USED 0
 #define CABINET_STATUS_EMPTY -1
+#define PASSWORD_SIZE 8
 
 #include <stdio.h>
 #include "cabinet.h"
