@@ -106,12 +106,8 @@ int clear_cabinet(int index) {
  * 캐비넷 리스트를 정렬해서 보여주는 함수
  */
 void show_cabinet_list(){
-    Cabinet lst[MAX_CABINET_SIZE+1];
-    for(int i = START_CABINET_INDEX; i <= MAX_CABINET_SIZE; i++){
-        lst[i] = get_cabinet(i);
-    }
     for (int i = START_CABINET_INDEX; i <= MAX_CABINET_SIZE; i++) {
-        show_cabinet(lst[i]);
+        show_cabinet(i);
     }
 }
 
@@ -119,24 +115,23 @@ void show_cabinet_list(){
  * 사물함 하나를 보여주는 함수
  * @param cabinet 보여줄 사물함
  */
-void show_cabinet(Cabinet cabinet){
+void show_cabinet(int index){
 
-    if(cabinet.passward[0] == '\0'){   //사물함이 비어있는 경우
-        /*
+    Cabinet cabinet = get_cabinet(index);
+
+    if(is_cabinet_empty(index) == 1){   //사물함이 비어있는 경우
         printf("+------------------------------+\n");
         printf("| Cabinet Index: %-15d|\n", cabinet.index);
-        printf("| Status: %-19s|\n", "Empty");
+        printf("| Status: %-22s|\n", "Empty");
         printf("|              %-17s|\n"," ");
         printf("+------------------------------+\n");
         return;
-         */
-        printf("hello \n");
     }
 
     printf("+------------------------------+\n");
     printf("| Cabinet Index: %-15d|\n", cabinet.index);
-    printf("| File Name: %-19s|\n", cabinet.file_name);
-    printf("| Description: %-17s|\n", cabinet.file_description);
+    printf("| Status: %-22s|\n", "Used");
+    printf("|              %-17s|\n"," ");
     printf("+------------------------------+\n");
 }
 

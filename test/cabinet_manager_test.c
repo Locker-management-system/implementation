@@ -43,6 +43,13 @@ int main() {
     isEmpty = is_cabinet_empty(1);
     printf("Is Cabinet 1 Empty after clearing? %d\n", isEmpty);
 
+    Cabinet cabinet2 = {6, "file1.txt"};
+    if (set_cabinet(cabinet2) == 1) {
+        printf("Cabinet 1 set successfully.\n");
+    } else {
+        printf("Failed to set Cabinet 1.\n");
+    }
+
     show_cabinet_list();
 
     return 0;
