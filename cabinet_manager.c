@@ -6,14 +6,13 @@
  * 사물함 레코드 파일 디스크립터를 반환하는 함수
  * @return 사물함 레코드 fd, 실패하면 -1반환
  */
-int get_cabinet_fd(){
+int get_cabinet_fd() {
     int cabinet_fd;
     cabinet_fd = open(CABINET_DB, O_RDWR | O_CREAT, 0640);
-    if(cabinet_fd == -1){
+    if (cabinet_fd == -1) {
         perror("cabinet_db 연결 오류");
         return -1;
     }
-    check_cabinet_null();
     return cabinet_fd;
 }
 
@@ -22,17 +21,15 @@ int get_cabinet_fd(){
  * @param cabinet 원하는 사물함의 정보
  * @return 성공할 시 1, 실패 시 -1
  */
-int set_cabinet(Cabinet cabinet){
+int set_cabinet(Cabinet cabinet) {
     int fd = get_cabinet_fd();
     if (fd == -1) return -1;
 
-    if (is_cabinet_empty(cabinet.index)) {
-        lseek(fd, (cabinet.index - START_CABINET_INDEX) * sizeof(Cabinet), SEEK_SET);
-        if (write(fd, &cabinet, sizeof(Cabinet)) == -1) {
-            perror("Failed to write to cabinet_db");
-            close(fd);
-            return -1;
-        }
+    lseek(fd, (cabinet.index - START_CABINET_INDEX) * sizeof(Cabinet), SEEK_SET);
+    if (write(fd, &cabinet, sizeof(Cabinet)) == -1) {
+        perror("Failed to write to cabinet_db");
+        close(fd);
+        return -1;
     }
 
     close(fd);
@@ -43,7 +40,7 @@ int set_cabinet(Cabinet cabinet){
  * 사물함의 레코드가 초기화되어있는지 확인한 후 초기화가 필요하면 초기화를 진행
  * @return
  */
-void check_cabinet_null(){
+void check_cabinet_null() {
     int fd = get_cabinet_fd();
     if (fd == -1) return;
 
@@ -84,7 +81,7 @@ int is_cabinet_empty(int index){
  * @param index 사물함 인덱스
  * @return 하당 인덱스의 사물함
  */
-Cabinet get_cabinet(int index){
+Cabinet get_cabinet(int index) {
     Cabinet record;
     int fd = get_cabinet_fd();
     if (fd == -1) return record;
@@ -96,7 +93,6 @@ Cabinet get_cabinet(int index){
 
     close(fd);
     return record;
-
 }
 
 /**
@@ -104,7 +100,7 @@ Cabinet get_cabinet(int index){
  * @param index 사물함 인덱스
  * @return
  */
-int clear_cabinet(int index){
+int clear_cabinet(int index) {
     Cabinet record;
     record.index = index;
     strcpy(record.file_name, "");

@@ -10,3 +10,6 @@
 159	286	7402414361497917	implementation.exe	c192d9e993ac85a6
 2	138	7402418364793771	CMakeFiles/implementation.dir/cabinet_manager.c.obj	93e96b0bcbc07267
 138	260	7402418365961073	implementation.exe	c192d9e993ac85a6
+2	141	7402422965822527	CMakeFiles/implementation.dir/test/cabinet_manager_test.c.obj	7a72122693e4c243
+10	142	7402422965832563	CMakeFiles/implementation.dir/cabinet_manager.c.obj	93e96b0bcbc07267
+142	259	7402422966917055	implementation.exe	c192d9e993ac85a6
