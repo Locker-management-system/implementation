@@ -1,24 +1,30 @@
 #include <termio.h>
 #include <stdio.h>
 
-int getch(void) {
+/**
+ * 입력한 값을 화면에 표시하지 않음
+ * @return 누른 키 값
+ */
+int getkey(void) {
     int ch;
+    struct termios old;
+    struct termios current;
 
-    struct termios buf;
-    struct termios save;
+    /* 현재 설정된 terminal i/o 값을 backup함 */
+    tcgetattr(0, &old);
 
-    tcgetattr(0, &save);
-    buf = save;
+    /* 현재의 설정된 terminal i/o에 일부 속성만 변경하기 위해 복사함 */
+    current = old;
 
-    buf.c_cflag &= ~(ICANON|ECHO);
-    buf.c_cc[VMIN] = 1;
-    buf.c_cc[VTIME] = 0;
+    /* buffer i/o를 중단함 */
+    current.c_lflag &= ~ICANON;
 
-    tcsetattr(0, TCSAFLUSH, &buf);
+    current.c_lflag &= ~ECHO;
 
+    /* 변경된 설정값으로 설정합니다.*/
+    tcsetattr(0, TCSANOW, &current);
     ch = getchar();
-
-    tcsetattr(0, TCSAFLUSH, &save);
+    tcsetattr(0, TCSANOW, &old);
 
     return ch;
 }

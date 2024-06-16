@@ -5,7 +5,7 @@
 
 typedef struct Cabinet{
     int index;
-    char password[8];
+    char password[9];
     char file_name[19];
     char file_description[17];
     int incorrect_cnt;

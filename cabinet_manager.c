@@ -17,6 +17,7 @@ int get_cabinet_fd() {
         perror("cabinet_db connetion error");
         return -1;
     }
+
     return cabinet_fd;
 }
 
@@ -85,6 +86,16 @@ Cabinet get_cabinet(int index) {
     int fd = get_cabinet_fd();
     if (fd == -1) return record;
 
+    struct flock lock;
+    lock.l_type = F_RDLCK;
+    lock.l_whence = SEEK_SET;
+    lock.l_start = (index-START_CABINET_INDEX)*sizeof(Cabinet);
+    lock.l_len = sizeof(Cabinet);
+
+    if(fcntl(fd, F_SETLK, &lock) == -1) {
+        perror("fcntl error:");
+    }
+
     lseek(fd, (index - START_CABINET_INDEX) * sizeof(record), SEEK_SET);
     if (read(fd, &record, sizeof(record)) == -1) {
         perror("Failed to read from cabinet_db");
@@ -148,16 +159,17 @@ void register_cabinet(int index){
     printf("Enter your password(8word): ");
     cabinet.incorrect_cnt = 0;
     int i = 0;
+    getchar();  //버퍼 지우는 용도
     while (1) {
         if (i > PASSWORD_SIZE - 1) break;
-        cabinet.password[i] = getch();
+        cabinet.password[i] = getkey();
         printf("*");
         i++;
     }
-
+    cabinet.password[8] = '\0';
     set_cabinet(cabinet);
-    printf("registered success!");
-    sleep(1);
+    printf("\nregistered success!");
+    printf("%s",cabinet.password);
 
 }
 
@@ -166,9 +178,6 @@ void register_cabinet(int index){
  */
 void select_cabinet(){
     int index;
-    char* password;
-
-    system("clear");
 
     printf("select your cabinet: ");
     scanf("%d", &index);
@@ -221,16 +230,25 @@ void lock_cabinet(int index) {
 int input_password(int index) {
     int incorrect_cnt = 0;
     Cabinet cabinet = get_cabinet(index);
+    char password[9];
+    getchar();
     while (incorrect_cnt < MAX_INCORRECT_PASSWORD) {
-        char* password;
         system("clear");
-        printf("Cabinet Index %d left %d times", index, MAX_INCORRECT_PASSWORD - incorrect_cnt);
-        scanf("%s", password);
+        printf("Cabinet Index %d left %d times (8word): ", index, MAX_INCORRECT_PASSWORD - incorrect_cnt);
+
+        int i = 0;
+        while (1) {
+            if (i > PASSWORD_SIZE - 1) break;
+            password[i] = getkey();
+            printf("*");
+            i++;
+        }
+        password[8] = '\0';
 
         if(strcmp(password, cabinet.password) == 0) {
+            printf("\n");
             return 1;
         }
-
         incorrect_cnt++;
     }
     lock_cabinet(index);

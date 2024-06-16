@@ -51,6 +51,7 @@ int main() {
     }
 
     show_cabinet_list();
+    select_cabinet();
 
     return 0;
 }

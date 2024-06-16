@@ -5,6 +5,6 @@
 #ifndef API_H
 #define API_H
 
-int getch(void);
+int getkey(void);
 
 #endif //API_H
