@@ -12,10 +12,10 @@ void print_cabinet(Cabinet cabinet) {
 }
 
 int main() {
-    // »ç¹°ÇÔ µ¥ÀÌÅÍº£ÀÌ½º ÃÊ±âÈ­ Ã¼Å©
+    // ì‚¬ë¬¼í•¨ ë°ì´í„°ë² ì´ìŠ¤ ì´ˆê¸°í™” ì²´í¬
     check_cabinet_null();
 
-    // »ç¹°ÇÔ ¼³Á¤ Å×½ºÆ®
+    // ì‚¬ë¬¼í•¨ ì„¤ì • í…ŒìŠ¤íŠ¸
     Cabinet cabinet1 = {1, "file1.txt"};
     if (set_cabinet(cabinet1) == 1) {
         printf("Cabinet 1 set successfully.\n");
@@ -23,22 +23,22 @@ int main() {
         printf("Failed to set Cabinet 1.\n");
     }
 
-    // »ç¹°ÇÔ °¡Á®¿À±â Å×½ºÆ®
+    // ì‚¬ë¬¼í•¨ ê°€ì ¸ì˜¤ê¸° í…ŒìŠ¤íŠ¸
     Cabinet retrieved_cabinet1 = get_cabinet(1);
     print_cabinet(retrieved_cabinet1);
 
-    // »ç¹°ÇÔ ºñ¾îÀÖ´ÂÁö È®ÀÎ Å×½ºÆ®
+    // ì‚¬ë¬¼í•¨ ë¹„ì–´ìˆëŠ”ì§€ í™•ì¸ í…ŒìŠ¤íŠ¸
     int isEmpty = is_cabinet_empty(1);
     printf("Is Cabinet 1 Empty? %d\n", isEmpty);
 
-    // »ç¹°ÇÔ ºñ¿ì±â Å×½ºÆ®
+    // ì‚¬ë¬¼í•¨ ë¹„ìš°ê¸° í…ŒìŠ¤íŠ¸
     if (clear_cabinet(1) == 1) {
         printf("Cabinet 1 cleared successfully.\n");
     } else {
         printf("Failed to clear Cabinet 1.\n");
     }
 
-    // ´Ù½Ã °¡Á®¿À±â ¹× È®ÀÎ
+    // ë‹¤ì‹œ ê°€ì ¸ì˜¤ê¸° ë° í™•ì¸
     Cabinet cleared_cabinet = get_cabinet(1);
     print_cabinet(cleared_cabinet);
     isEmpty = is_cabinet_empty(1);

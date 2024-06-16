@@ -10,7 +10,7 @@ int get_cabinet_fd(){
     int cabinet_fd;
     cabinet_fd = open(CABINET_DB, O_RDWR | O_CREAT, 0640);
     if(cabinet_fd == -1){
-        printf("cabinet_db 연결 오류\n");
+        perror("cabinet_db 연결 오류");
         return -1;
     }
     check_cabinet_null();
