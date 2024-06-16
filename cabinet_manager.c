@@ -1,5 +1,9 @@
 #include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
 #include<fcntl.h>
+#include<string.h>
+#include <conio.h>
 #include"cabinet_manager.h"
 
 /**
@@ -67,7 +71,7 @@ int is_cabinet_empty(int index){
     Cabinet record = get_cabinet(index);
 
     close(fd);
-    return record.password[0] == '\0';
+    return record.status == CABINET_STATUS_EMPTY;
 
 }
 
@@ -98,7 +102,7 @@ Cabinet get_cabinet(int index) {
 int clear_cabinet(int index) {
     Cabinet record;
     record.index = index;
-    record.password[0] = '\0';
+    record.status = CABINET_STATUS_EMPTY;
     return set_cabinet(record);
 }
 
@@ -119,46 +123,112 @@ void show_cabinet(int index){
 
     Cabinet cabinet = get_cabinet(index);
 
-    if(is_cabinet_empty(index) == 1){   //사물함이 비어있는 경우
-        printf("+------------------------------+\n");
-        printf("| Cabinet Index: %-15d|\n", cabinet.index);
-        printf("| Status: %-22s|\n", "Empty");
-        printf("|              %-17s|\n"," ");
-        printf("+------------------------------+\n");
-        return;
+    switch (cabinet.status) {
+        case CABINET_STATUS_LOCK:
+            show_lock_cabinet(index);
+            break;
+        case CABINET_STATUS_EMPTY:
+            show_empty_cabinet(index);
+            break;
+        case CABINET_STATUS_USED:
+            show_used_cabinet(index);
+            break;
+    }
+}
+
+void register_cabinet(int index){
+    Cabinet cabinet;
+    char* file_name;
+    char password[8];
+    system("clear");
+    printf("input the file name you wnat to archive: ");
+    scanf("%s", cabinet.file_name);
+    printf("Enter your password(8word): ");
+
+    while (1) {
+        int i = 0;
+        if (i > 7) break;
+        password[i] = getch();
+        printf("*");
+        i++;
     }
 
-    printf("+------------------------------+\n");
-    printf("| Cabinet Index: %-15d|\n", cabinet.index);
-    printf("| Status: %-22s|\n", "Used");
-    printf("|              %-17s|\n"," ");
-    printf("+------------------------------+\n");
 }
 
-void make_cabinet(){
-
-}
-
+/**
+ * 사용할 사물함을 고르는 함수
+ */
 void select_cabinet(){
     int index;
     char* password;
+
+    system("clear");
+
     printf("select your cabinet: ");
     scanf("%d", &index);
 
-    if(is_cabinet_empty(index) == 1){
-
-
+    if(is_cabinet_lock(index) == 1) {   //사물함이 잠겨있는 경우
+        printf("Contact this system administrator\n");
         return;
     }
 
-    Cabinet cabinet = get_cabinet(index);
-
-    printf("input password: ");
-    scanf("%s", password);
-    if(strcmp(password, cabinet.password) == 0){
-        
+    if(is_cabinet_empty(index) == 1){   //비어있는 사물함의 경우 바로 사물함을 등록한다.
+        register_cabinet(index);
+        return;
     }
 
+    if(input_password(index) == 1) {
+        //비밀번호 해제 성공
+        show_my_cabinet(index);
+    }
+}
+
+/**
+ * 사물함이 잠겨있는지 확인하는 함수
+ * @param index 사물함의 인덱스
+ * @return 잠겨있으면 1, 잠겨있지 않다면 0
+ */
+int is_cabinet_lock(int index) {
+    Cabinet cabinet = get_cabinet(index);
+    if(cabinet.status == CABINET_STATUS_LOCK) {
+        return 1;
+    }
+    return 0;
+}
+
+/**
+ * 사물함을 잠그는 함수
+ * @param index 사물함의 인덱스
+ */
+void lock_cabinet(int index) {
+    Cabinet cabinet = get_cabinet(index);
+    cabinet.status = CABINET_STATUS_LOCK;
+    set_cabinet(cabinet);
+}
+
+/**
+ * 비밀번호를 입력 받는 함수.
+ * 비밀번호 입력에 실패하면 해당 사물함을 잠금상태로 만든다.
+ * @param index 비밀번호를 입력 받을 인덱스
+ * @return 비밀번호입력에 성공하면 1, 실패하면 -1
+ */
+int input_password(int index) {
+    int incorrect_cnt = 0;
+    Cabinet cabinet = get_cabinet(index);
+    while (incorrect_cnt < MAX_INCORRECT_PASSWORD) {
+        char* password;
+        system("clear");
+        printf("Cabinet Index %d left %d times", index, MAX_INCORRECT_PASSWORD - incorrect_cnt);
+        scanf("%s", password);
+
+        if(strcmp(password, cabinet.password) == 0) {
+            return 1;
+        }
+
+        incorrect_cnt++;
+    }
+    lock_cabinet(index);
+    return -1;
 }
 
 void show_my_cabinet(int index){
@@ -167,5 +237,27 @@ void show_my_cabinet(int index){
     printf("| Cabinet Index: %-15d|\n", cabinet.index);
     printf("| File Name: %-19s|\n", cabinet.file_name);
     printf("| Description: %-17s|\n", cabinet.file_description);
+    printf("+------------------------------+\n");
+}
+
+void show_lock_cabinet(int index) {
+    printf("+------------------------------+\n");
+    printf("| Cabinet Index: %-15d|\n", index);
+    printf("| Status: %-22s|\n", "Lock");
+    printf("|              %-17s|\n"," ");
+    printf("+------------------------------+\n");
+}
+void show_empty_cabinet(int index) {
+    printf("+------------------------------+\n");
+    printf("| Cabinet Index: %-15d|\n", index);
+    printf("| Status: %-22s|\n", "Empty");
+    printf("|              %-17s|\n"," ");
+    printf("+------------------------------+\n");
+}
+void show_used_cabinet(int index) {
+    printf("+------------------------------+\n");
+    printf("| Cabinet Index: %-15d|\n", index);
+    printf("| Status: %-22s|\n", "Used");
+    printf("|              %-17s|\n"," ");
     printf("+------------------------------+\n");
 }
