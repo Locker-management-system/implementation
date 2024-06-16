@@ -17,7 +17,6 @@ int get_cabinet_fd() {
         perror("cabinet_db connetion error");
         return -1;
     }
-
     return cabinet_fd;
 }
 
@@ -85,16 +84,6 @@ Cabinet get_cabinet(int index) {
     Cabinet record;
     int fd = get_cabinet_fd();
     if (fd == -1) return record;
-
-    struct flock lock;
-    lock.l_type = F_RDLCK;
-    lock.l_whence = SEEK_SET;
-    lock.l_start = (index-START_CABINET_INDEX)*sizeof(Cabinet);
-    lock.l_len = sizeof(Cabinet);
-
-    if(fcntl(fd, F_SETLK, &lock) == -1) {
-        perror("fcntl error:");
-    }
 
     lseek(fd, (index - START_CABINET_INDEX) * sizeof(record), SEEK_SET);
     if (read(fd, &record, sizeof(record)) == -1) {
@@ -182,6 +171,18 @@ void select_cabinet(){
     printf("select your cabinet: ");
     scanf("%d", &index);
 
+    int fd = get_cabinet_fd();
+    struct flock lock;
+
+    lock.l_type = F_RDLCK;
+    lock.l_whence = SEEK_SET;
+    lock.l_start = (index-START_CABINET_INDEX)*sizeof(Cabinet);
+    lock.l_len = sizeof(Cabinet);
+
+    if (fcntl(fd, F_SETLKW, &lock) == -1){
+        perror("fctnl error: ");
+    }
+
     if(is_cabinet_lock(index) == 1) {   //사물함이 잠겨있는 경우
         printf("Contact this system administrator\n");
         return;
@@ -196,6 +197,11 @@ void select_cabinet(){
         //비밀번호 해제 성공
         show_my_cabinet(index);
     }
+
+    lock.l_type = F_UNLCK;
+    fcntl(fd, F_SETLK, &lock);
+
+    close(fd);
 }
 
 /**
