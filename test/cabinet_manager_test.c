@@ -3,7 +3,6 @@
 #include <string.h>
 #include "cabinet_manager.h"
 
-#define CABINET_DB "cabinet_db.bin"
 #define START_CABINET_INDEX 1
 #define MAX_CABINET_SIZE 10
 

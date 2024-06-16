@@ -5,8 +5,9 @@
 
 typedef struct Cabinet{
     int index;
-    char file_name[20];
-    char file_description[100];
+    char passward[20];
+    char file_name[19];
+    char file_description[17];
 }Cabinet;
 
 

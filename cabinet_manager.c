@@ -10,7 +10,7 @@ int get_cabinet_fd() {
     int cabinet_fd;
     cabinet_fd = open(CABINET_DB, O_RDWR | O_CREAT, 0640);
     if (cabinet_fd == -1) {
-        perror("cabinet_db 연결 오류");
+        perror("cabinet_db connetion error");
         return -1;
     }
     return cabinet_fd;
@@ -56,26 +56,21 @@ void init_cabinet() {
 
 /**
  * 특정 인덱스의 사물함이 비어있는지 확인하는 함수
- * 파일 이름이 \0일 시 비어있는 케비넷으로 인식한다.
- * @param index 검사해볼 사물함의 인덱스
+ * 비밀번호 첫번 째 자리가 \0일 시 비어있는 사물함으로 인식한다.
+ * @param index 검사해 볼 사물함의 인덱스
  * @return 비어있다면 1, 비어있지 않다면 0;
  */
 int is_cabinet_empty(int index){
     int fd = get_cabinet_fd();
     if (fd == -1) return 0;
 
-    Cabinet record;
-    lseek(fd, (index - START_CABINET_INDEX) * sizeof(record), SEEK_SET);
-    if (read(fd, &record, sizeof(record)) == -1) {
-        perror("Failed to read from cabinet_db");
-        close(fd);
-        return 0;
-    }
+    Cabinet record = get_cabinet(index);
 
     close(fd);
-    return record.file_name[0] == '\0';
+    return record.passward[0] == '\0';
 
 }
+
 /**
  * 원하는 인덱스의 사물함을 가져오는 함수
  * @param index 사물함 인덱스
@@ -98,13 +93,12 @@ Cabinet get_cabinet(int index) {
 /**
  * 원하는 인덱스의 사물함을 비우는 함수
  * @param index 사물함 인덱스
- * @return
+ * @return 성공할 시 1, 실패할 시 0
  */
 int clear_cabinet(int index) {
     Cabinet record;
     record.index = index;
-    strcpy(record.file_name, "");
-
+    record.passward[0] = '\0';
     return set_cabinet(record);
 }
 
@@ -117,10 +111,44 @@ void show_cabinet_list(){
         lst[i] = get_cabinet(i);
     }
     for (int i = START_CABINET_INDEX; i <= MAX_CABINET_SIZE; i++) {
-        printf("+------------------------------+\n");
-        printf("| Cabinet Index: %-15d|\n", lst[i].index);
-        printf("| File Name: %-18s|\n", lst[i].file_name);
-        printf("| Description: %-17s|\n", lst[i].file_description);
-        printf("+------------------------------+\n");
+        show_cabinet(lst[i]);
     }
+}
+
+/**
+ * 사물함 하나를 보여주는 함수
+ * @param cabinet 보여줄 사물함
+ */
+void show_cabinet(Cabinet cabinet){
+
+    if(cabinet.passward[0] == '\0'){   //사물함이 비어있는 경우
+        /*
+        printf("+------------------------------+\n");
+        printf("| Cabinet Index: %-15d|\n", cabinet.index);
+        printf("| Status: %-19s|\n", "Empty");
+        printf("|              %-17s|\n"," ");
+        printf("+------------------------------+\n");
+        return;
+         */
+        printf("hello \n");
+    }
+
+    printf("+------------------------------+\n");
+    printf("| Cabinet Index: %-15d|\n", cabinet.index);
+    printf("| File Name: %-19s|\n", cabinet.file_name);
+    printf("| Description: %-17s|\n", cabinet.file_description);
+    printf("+------------------------------+\n");
+}
+
+void select_cabinet(int index){
+
+}
+
+void show_my_cabinet(int index){
+    Cabinet cabinet = get_cabinet(index);
+    printf("+------------------------------+\n");
+    printf("| Cabinet Index: %-15d|\n", cabinet.index);
+    printf("| File Name: %-19s|\n", cabinet.file_name);
+    printf("| Description: %-17s|\n", cabinet.file_description);
+    printf("+------------------------------+\n");
 }
