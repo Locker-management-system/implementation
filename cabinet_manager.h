@@ -14,7 +14,7 @@ int is_cabinet_empty(int index);
 Cabinet get_cabinet(int index);
 void show_cabinet_list();
 void show_cabinet(int index);
-void select_cabinet(int index);
+void select_cabinet();
 
 
 #endif

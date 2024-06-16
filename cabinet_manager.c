@@ -67,7 +67,7 @@ int is_cabinet_empty(int index){
     Cabinet record = get_cabinet(index);
 
     close(fd);
-    return record.passward[0] == '\0';
+    return record.password[0] == '\0';
 
 }
 
@@ -98,7 +98,7 @@ Cabinet get_cabinet(int index) {
 int clear_cabinet(int index) {
     Cabinet record;
     record.index = index;
-    record.passward[0] = '\0';
+    record.password[0] = '\0';
     return set_cabinet(record);
 }
 
@@ -135,7 +135,29 @@ void show_cabinet(int index){
     printf("+------------------------------+\n");
 }
 
-void select_cabinet(int index){
+void make_cabinet(){
+
+}
+
+void select_cabinet(){
+    int index;
+    char* password;
+    printf("select your cabinet: ");
+    scanf("%d", &index);
+
+    if(is_cabinet_empty(index) == 1){
+
+
+        return;
+    }
+
+    Cabinet cabinet = get_cabinet(index);
+
+    printf("input password: ");
+    scanf("%s", password);
+    if(strcmp(password, cabinet.password) == 0){
+        
+    }
 
 }
 

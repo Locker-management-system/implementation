@@ -5,7 +5,7 @@
 
 typedef struct Cabinet{
     int index;
-    char passward[20];
+    char password[20];
     char file_name[19];
     char file_description[17];
 }Cabinet;
