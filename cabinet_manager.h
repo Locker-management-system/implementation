@@ -9,10 +9,10 @@
 
 int set_cabinet(Cabinet cabinet);
 int clear_cabinet(int cabinet_index);
-void check_cabinet_null();
+void init_cabinet();
 int is_cabinet_empty(int index);
 Cabinet get_cabinet(int index);
-
+void show_cabinet_list();
 
 
 #endif

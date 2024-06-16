@@ -40,7 +40,7 @@ int set_cabinet(Cabinet cabinet) {
  * 사물함의 레코드가 초기화되어있는지 확인한 후 초기화가 필요하면 초기화를 진행
  * @return
  */
-void check_cabinet_null() {
+void init_cabinet() {
     int fd = get_cabinet_fd();
     if (fd == -1) return;
 
@@ -106,4 +106,21 @@ int clear_cabinet(int index) {
     strcpy(record.file_name, "");
 
     return set_cabinet(record);
+}
+
+/**
+ * 캐비넷 리스트를 정렬해서 보여주는 함수
+ */
+void show_cabinet_list(){
+    Cabinet lst[MAX_CABINET_SIZE+1];
+    for(int i = START_CABINET_INDEX; i <= MAX_CABINET_SIZE; i++){
+        lst[i] = get_cabinet(i);
+    }
+    for (int i = START_CABINET_INDEX; i <= MAX_CABINET_SIZE; i++) {
+        printf("+------------------------------+\n");
+        printf("| Cabinet Index: %-15d|\n", lst[i].index);
+        printf("| File Name: %-18s|\n", lst[i].file_name);
+        printf("| Description: %-17s|\n", lst[i].file_description);
+        printf("+------------------------------+\n");
+    }
 }

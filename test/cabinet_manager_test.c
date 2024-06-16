@@ -13,7 +13,7 @@ void print_cabinet(Cabinet cabinet) {
 
 int main() {
     // 사물함 데이터베이스 초기화 체크
-    check_cabinet_null();
+    init_cabinet();
 
     // 사물함 설정 테스트
     Cabinet cabinet1 = {1, "file1.txt"};
@@ -43,6 +43,8 @@ int main() {
     print_cabinet(cleared_cabinet);
     isEmpty = is_cabinet_empty(1);
     printf("Is Cabinet 1 Empty after clearing? %d\n", isEmpty);
+
+    show_cabinet_list();
 
     return 0;
 }
