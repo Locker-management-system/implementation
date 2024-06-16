@@ -1,4 +1,6 @@
-/snap/clion/282/bin/cmake/linux/x64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/snap/clion/282/bin/ninja/linux/x64/ninja -G Ninja -S "/home/sungkwang/바탕화면/하나의폴더/리눅스 프로젝트/implementation" -B "/home/sungkwang/바탕화면/하나의폴더/리눅스 프로젝트/implementation/cmake-build-debug"
--- Configuring done (0.0s)
--- Generating done (0.0s)
--- Build files have been written to: /home/sungkwang/바탕화면/하나의폴더/리눅스 프로젝트/implementation/cmake-build-debug
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" -S /Users/jeonjeonghyeon/project/implementation -B /Users/jeonjeonghyeon/project/implementation/cmake-build-debug
+CMake Error at CMakeLists.txt:1 (cmake_minimum_required):
+  CMake 3.27 or higher is required.  You are running version 3.26.4
+
+
+-- Configuring incomplete, errors occurred!

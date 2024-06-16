@@ -1,3 +1,0 @@
-/home/sungkwang/바탕화면/하나의폴더/리눅스 프로젝트/implementation/cmake-build-debug/CMakeFiles/implementation.dir
-/home/sungkwang/바탕화면/하나의폴더/리눅스 프로젝트/implementation/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/sungkwang/바탕화면/하나의폴더/리눅스 프로젝트/implementation/cmake-build-debug/CMakeFiles/rebuild_cache.dir
