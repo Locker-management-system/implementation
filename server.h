@@ -3,9 +3,7 @@
 #define PWDLength 30
 
 #include <stdio.h>
-#include "../../Locker-management-system/cabinet_manager.h"
-#include "readInfo.h"
-
+#include "cabinet_manager.h"
 int sockets();
 
 #endif
