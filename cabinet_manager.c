@@ -51,9 +51,7 @@ void init_cabinet() {
     Cabinet record;
     lseek(fd, 0, SEEK_SET);
     if (read(fd, &record, sizeof(record)) <= 0) {
-        for (int i = START_CABINET_INDEX; i <= MAX_CABINET_SIZE; i++) {
-            clear_cabinet(i);
-        }
+        clear_all_cabinet();
     }
     close(fd);
 }
@@ -102,6 +100,8 @@ Cabinet get_cabinet(int index) {
 int clear_cabinet(int index) {
     Cabinet record;
     record.index = index;
+    strcpy(record.file_name,"");
+    strcpy(record.file_description,"");
     record.status = CABINET_STATUS_EMPTY;
     return set_cabinet(record);
 }
@@ -112,6 +112,42 @@ int clear_cabinet(int index) {
 void show_cabinet_list(){
     for (int i = START_CABINET_INDEX; i <= MAX_CABINET_SIZE; i++) {
         show_cabinet(i);
+    }
+}
+
+/**
+ * 사물함의 모든 정보를 보여주는 함수 (관리자가 사용 예정)
+ */
+void show_all_cabinet_list() {
+    for (int i = START_CABINET_INDEX; i <= MAX_CABINET_SIZE; i++) {
+        show_my_cabinet(i);
+    }
+}
+
+/**
+ * 잠긴 사물함을 잠금 해제 하는 함수 (관리자 사용예정)
+ * @param index 원하는 인덱스
+ */
+void unlock_cabinet(int index) {
+    Cabinet cabinet = get_cabinet(index);
+    cabinet.status = CABINET_STATUS_USED;
+    cabinet.incorrect_cnt = 0;
+    set_cabinet(cabinet);
+}
+
+/**
+ * 사물함의 비밀번호 시도 횟수를 초기화하는 함수
+ * @param index 원하는 인덱
+ */
+void clear_incorrect_cnt(int index) {
+    Cabinet cabinet = get_cabinet(index);
+    cabinet.incorrect_cnt = 0;
+    set_cabinet(cabinet);
+}
+
+void clear_all_cabinet() {
+    for (int i = START_CABINET_INDEX; i <= MAX_CABINET_SIZE; i++) {
+        clear_cabinet(i);
     }
 }
 
@@ -160,6 +196,7 @@ void register_cabinet(int index){
     printf("\nregistered success!");
     printf("%s",cabinet.password);
 
+
 }
 
 /**
@@ -195,6 +232,7 @@ void select_cabinet(){
 
     if(input_password(index) == 1) {
         //비밀번호 해제 성공
+        clear_incorrect_cnt(index);
         show_my_cabinet(index);
     }
 

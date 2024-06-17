@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cabinet_manager.h"
+#include "admin.h"
 
 #define START_CABINET_INDEX 1
 #define MAX_CABINET_SIZE 10
@@ -51,7 +52,9 @@ int main() {
     }
 
     show_cabinet_list();
-    select_cabinet();
+    //select_cabinet();
+
+    show_admin_menu();
 
     return 0;
 }

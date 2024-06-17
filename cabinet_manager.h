@@ -20,7 +20,6 @@ Cabinet get_cabinet(int index);
 void show_cabinet_list();
 void show_cabinet(int index);
 void select_cabinet();
-void register_cabinet();
 int input_password(int index);
 void lock_cabinet(int index);
 void show_lock_cabinet(int index);
@@ -29,5 +28,9 @@ void show_used_cabinet(int index);
 void show_my_cabinet(int index);
 int is_cabinet_lock(int index) ;
 void register_cabinet(int index);
+void show_all_cabinet_list();
+void unlock_cabinet(int index);
+void clear_incorrect_cnt(int index);
+void clear_all_cabinet();
 
 #endif
