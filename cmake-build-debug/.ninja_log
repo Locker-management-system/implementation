@@ -1,6 +1,0 @@
-# ninja log v6
-90	195	7402527456828263	implementation.exe	c192d9e993ac85a6
-29	45	1718556687616645597	implementation	eef7ad4bdca553c8
-1	29	1718556687588645356	CMakeFiles/implementation.dir/cabinet_manager.c.o	2cd5102126f4b7c2
-1	22	1718556687588645356	CMakeFiles/implementation.dir/test/cabinet_manager_test.c.o	203dd0cbcd4ad2d5
-1	15	1718558556810724572	build.ninja	e8ac52b17b5df4d6

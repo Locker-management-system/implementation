@@ -1,97 +1,257 @@
+// client.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include "client.h"
-#define fileLine 50
+#include "cabinet.h"
 
-int main(int argc, char* argv[]) {
-    int clientfd, result, index;
-    Cabinet record;
-    char check, fileName[fileLine], buf[BUFSIZ];
-    FILE* file = NULL;
-    size_t fsize, nsize = 0;
+#define PORT 88845
+#define MAX_CABINETS 10
 
-    struct sockaddr_in serverAddr;
+typedef enum {
+    SAVE_CABINET,
+    REQUEST_CABINET,
+    REQUEST_ALL_CABINETS,
+    DOWNLOAD_FILE
+} RequestType;
 
-    // 소켓 생성
-    clientfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (clientfd < 0) {
-        perror("socket creation failed");
-        return 1;
+typedef struct {
+    RequestType request_type;
+    Cabinet cabinet;
+    size_t file_size;
+    char password[20];
+} ClientRequest;
+
+int connect_to_server() {
+    int sock = 0;
+    struct sockaddr_in serv_addr;
+
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        perror("Socket creation error");
+        exit(EXIT_FAILURE);
     }
 
-    // 서버 주소 설정
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // 서버 IP 주소
-    serverAddr.sin_port = htons(atoi(argv[1])); // 서버 포트 번호
-
-    // 서버에 연결 요청
-    result = connect(clientfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
-    if (result < 0) {
-        perror("connect failed");
-        close(clientfd);
-        return 1;
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(PORT);
+    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+        perror("Invalid address/ Address not supported");
+        close(sock);
+        exit(EXIT_FAILURE);
     }
 
-    // 사물함 리스트 출력
-    show_cabinet_list();
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        perror("Connection failed");
+        close(sock);
+        exit(EXIT_FAILURE);
+    }
 
-    // 사용자로부터 index 입력 받기
-    printf("Index Input: ");
-    scanf("%d", &index);
+    return sock;
+}
 
-    // index 값을 서버로 전송
-    if (send(clientfd, &index, sizeof(index), 0) != sizeof(index)) {
+void request_all_cabinets() {
+    int sock = connect_to_server();
+    ClientRequest request;
+    request.request_type = REQUEST_ALL_CABINETS;
+
+    if (send(sock, &request, sizeof(ClientRequest), 0) <= 0) {
         perror("send failed");
-        close(clientfd);
-        return 1;
+        close(sock);
+        exit(EXIT_FAILURE);
     }
 
-    // 서버로부터 사물함 정보 수신
-    if (recv(clientfd, &record, sizeof(record), 0) != sizeof(record)) {
-        perror("Failed to receive cabinet information");
-        close(clientfd);
-        return 1;
+    Cabinet cabinet;
+    printf("Cabinets Status:\n");
+    printf("Index | File Name        | Description\n");
+    printf("---------------------------------------\n");
+    for (int i = 0; i < MAX_CABINETS; i++) {
+        if (recv(sock, &cabinet, sizeof(Cabinet), 0) > 0) {
+            printf("%5d | %-16s | %s\n", cabinet.index, cabinet.file_name, cabinet.file_description);
+        } else {
+            perror("recv failed");
+            close(sock);
+            exit(EXIT_FAILURE);
+        }
     }
-    printf("record: %d\n", record.index);
+    close(sock);
+}
 
-    // 사물함 정보 출력
-    show_my_cabinet(record.index);
+Cabinet request_cabinet(int index) {
+    int sock = connect_to_server();
+    ClientRequest request;
+    request.request_type = REQUEST_CABINET;
+    request.cabinet.index = index;
 
-    // 파일 전송 여부 확인
-    printf("\nDo you want to insert a file? (Y/N)\n");
-    scanf(" %c", &check);
-    if (check == 'Y') {
-        send(clientfd, &check, sizeof(char), 0);
-        strcpy(fileName, record.file_name);
-        send(clientfd, fileName, strlen(fileName) + 1, 0);
+    if (send(sock, &request, sizeof(ClientRequest), 0) <= 0) {
+        perror("send failed");
+        close(sock);
+        exit(EXIT_FAILURE);
+    }
 
-        file = fopen("file1.txt", "rb");
-        if (!file) {
-            perror("Failed to open file");
-            close(clientfd);
-            return 1;
-        }
+    Cabinet cabinet;
+    if (recv(sock, &cabinet, sizeof(Cabinet), 0) <= 0) {
+        perror("recv failed");
+        close(sock);
+        exit(EXIT_FAILURE);
+    }
 
-        fseek(file, 0, SEEK_END);
-        fsize = ftell(file);
-        fseek(file, 0, SEEK_SET);
+    close(sock);
+    return cabinet;
+}
 
-        while (nsize < fsize) {
-            int fpsize = fread(buf, 1, sizeof(buf), file);
-            if (fpsize < 0) break;
-            nsize += fpsize;
-            send(clientfd, buf, fpsize, 0);
-        }
-        printf("\nsize: %zu\n", nsize);
+void update_cabinet_info() {
+    int sock = connect_to_server();
+    ClientRequest request;
+    request.request_type = SAVE_CABINET;
+
+    printf("Enter the index of the cabinet to update (1-10): ");
+    if (scanf("%d", &request.cabinet.index) != 1 || request.cabinet.index < 1 || request.cabinet.index > 10) {
+        fprintf(stderr, "Invalid index. Please enter a value between 1 and 10.\n");
+        close(sock);
+        return;
+    }
+
+    printf("Enter the file name: ");
+    scanf("%s", request.cabinet.file_name);
+    printf("Enter the file description: ");
+    scanf(" %[^\n]", request.cabinet.file_description);  // Read until newline
+
+    FILE *file = fopen(request.cabinet.file_name, "rb");
+    if (!file) {
+        perror("Could not open file to read");
+        close(sock);
+        return;
+    }
+
+    fseek(file, 0, SEEK_END);
+    request.file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    printf("Enter password for the cabinet: ");
+    scanf("%s", request.password);
+
+    if (send(sock, &request, sizeof(ClientRequest), 0) <= 0) {
+        perror("send failed");
         fclose(file);
-    } else {
-        close(clientfd);
+        close(sock);
+        exit(EXIT_FAILURE);
     }
 
+    char buffer[1024];
+    size_t bytes_read;
+    while ((bytes_read = fread(buffer, 1, sizeof(buffer), file)) > 0) {
+        if (send(sock, buffer, bytes_read, 0) < 0) {
+            perror("send failed");
+            fclose(file);
+            close(sock);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    fclose(file);
+
+    int response;
+    if (recv(sock, &response, sizeof(response), 0) <= 0) {
+        perror("recv failed");
+        close(sock);
+        return;
+    }
+
+    if (response == 1) {
+        printf("Cabinet information updated and file sent: %s (size: %zu bytes)\n", request.cabinet.file_name, request.file_size);
+        if (remove(request.cabinet.file_name) == 0) {
+            printf("File %s deleted successfully.\n", request.cabinet.file_name);
+        } else {
+            perror("Failed to delete the file");
+        }
+    } else {
+        printf("Access denied. The cabinet index is not empty.\n");
+    }
+
+    close(sock);
+}
+
+void download_file_from_cabinet() {
+    int sock = connect_to_server();
+    ClientRequest request;
+    request.request_type = DOWNLOAD_FILE;
+
+    printf("Enter the index of the cabinet to download (1-10): ");
+    if (scanf("%d", &request.cabinet.index) != 1 || request.cabinet.index < 1 || request.cabinet.index > 10) {
+        fprintf(stderr, "Invalid index. Please enter a value between 1 and 10.\n");
+        close(sock);
+        return;
+    }
+
+    printf("Enter password for the cabinet: ");
+    scanf("%s", request.password);
+
+    if (send(sock, &request, sizeof(ClientRequest), 0) <= 0) {
+        perror("send failed");
+        close(sock);
+        exit(EXIT_FAILURE);
+    }
+
+    int response;
+    if (recv(sock, &response, sizeof(response), 0) <= 0) {
+        perror("recv failed");
+        close(sock);
+        return;
+    }
+
+    if (response == 1) {
+        Cabinet cabinet = request_cabinet(request.cabinet.index);
+        FILE *file = fopen(cabinet.file_name, "wb");
+        if (!file) {
+            perror("Could not open file to save");
+            close(sock);
+            return;
+        }
+
+        char buffer[1024];
+        int bytes_received;
+        while ((bytes_received = recv(sock, buffer, sizeof(buffer), 0)) > 0) {
+            fwrite(buffer, 1, bytes_received, file);
+        }
+
+        fclose(file);
+        printf("File downloaded: %s\n", cabinet.file_name);
+    } else {
+        printf("Access denied. Incorrect password.\n");
+    }
+
+    close(sock);
+}
+
+int main() {
+    int choice;
+    while (1) {
+        printf("\n1. View all cabinets\n");
+        printf("2. Update a cabinet\n");
+        printf("3. Download file from cabinet\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        if (scanf("%d", &choice) != 1) {
+            fprintf(stderr, "Invalid input. Please enter a number.\n");
+            while (getchar() != '\n'); // Clear invalid input
+            continue;
+        }
+
+        switch (choice) {
+            case 1:
+                request_all_cabinets();
+                break;
+            case 2:
+                update_cabinet_info();
+                break;
+            case 3:
+                download_file_from_cabinet();
+                break;
+            case 4:
+                exit(0);
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
     return 0;
 }
